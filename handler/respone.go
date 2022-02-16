@@ -5,20 +5,22 @@ import (
 	"net/http"
 )
 
-type respone struct {
-	success bool
-	data    interface{}
+type Respone struct {
+	Success  bool        `json:"success"`
+	HttpCode int         `json:"http_code"`
+	Data     interface{} `json:"data"`
 }
 
-func responseWithJson(writer http.ResponseWriter, status int, object interface{}, objectName interface{}) {
+func responseWithJson(writer http.ResponseWriter, status int, object interface{}, objectName string) {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(status)
-	var res respone
-	res.success = status == http.StatusOK
-	if objectName != nil {
-		res.data = map[interface{}]interface{}{objectName: object}
+	var res Respone
+	res.Success = status == http.StatusOK
+	res.HttpCode = status
+	if objectName != "" {
+		res.Data = map[string]interface{}{objectName: object}
 	} else {
-		res.data = object
+		res.Data = object
 	}
-	json.NewEncoder(writer).Encode(object)
+	json.NewEncoder(writer).Encode(res)
 }
